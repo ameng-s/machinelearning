@@ -1,0 +1,16 @@
+# Dataset
+dataset/
+
+# Model
+models/*.h5
+models/*.keras
+models/*.pkl
+models/*.joblib
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
