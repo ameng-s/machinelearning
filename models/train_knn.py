@@ -26,7 +26,7 @@ from sklearn.metrics import (
 
 TRAIN_DIR = "dataset/preprocessed/train"
 TEST_DIR = "dataset/preprocessed/test"
-MODEL_OUT_DIR = "models"
+EVAL_OUT_DIR = "evaluation"
 
 CLASSES = [
     "Highly Fresh",
@@ -157,9 +157,10 @@ if __name__ == "__main__":
     print("----- Confusion Matrix -----")
     print(cm)
     
-    os.makedirs(MODEL_OUT_DIR, exist_ok=True)
-    model_path = os.path.join(MODEL_OUT_DIR, "knn_model.pkl")
-    scaler_path = os.path.join(MODEL_OUT_DIR, "knn_scaler.pkl")
+    os.makedirs(EVAL_OUT_DIR, exist_ok=True)
+    model_path = os.path.join(EVAL_OUT_DIR, "knn_model.pkl")
+    scaler_path = os.path.join(EVAL_OUT_DIR, "knn_scaler.pkl")
+    cm_path = os.path.join(EVAL_OUT_DIR, "confusion_matrix_knn.png")
     
     joblib.dump(best_knn, model_path)
     joblib.dump(scaler, scaler_path)
@@ -171,5 +172,6 @@ if __name__ == "__main__":
     disp.plot(cmap="Blues", ax=ax, values_format="d")
     plt.title("Confusion Matrix - KNN Fish Eye Freshness")
     plt.tight_layout()
-    plt.savefig(os.path.join(MODEL_OUT_DIR, "confusion_matrix_knn.png"), dpi=300)
+    plt.savefig(cm_path, dpi=300)
+    print(f"Confusion Matrix disimpan di   : {cm_path}")
     plt.show()
