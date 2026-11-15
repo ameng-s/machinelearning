@@ -1,5 +1,6 @@
 
 import os
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -210,6 +211,8 @@ model_checkpoint = ModelCheckpoint(
 
 print("\n===== MULAI TRAINING CNN =====")
 
+start_train = time.perf_counter()
+
 history = model.fit(
     train_dataset,
     validation_data=validation_dataset,
@@ -220,6 +223,12 @@ history = model.fit(
     ],
     shuffle=False
 )
+
+end_train = time.perf_counter()
+training_time = end_train - start_train
+
+print(f"\nWaktu Training CNN: {training_time:.2f} detik")
+print(f"Jumlah Epoch: {len(history.history['loss'])}")
 
 
 # ==========================================
@@ -397,5 +406,6 @@ print("Model      : models/cnn_fish_freshness.keras")
 print("Evaluation : evaluation/")
 print(f"Accuracy   : {test_accuracy * 100:.2f}%")
 print(f"Loss       : {test_loss:.4f}")
+print(f"Training Time : {training_time:.2f} detik")
 
 print("\nSemua proses berhasil dijalankan!")

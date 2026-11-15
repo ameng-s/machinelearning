@@ -1,0 +1,10 @@
+----- Classification Report -----
+              precision    recall  f1-score   support
+
+Highly Fresh       0.61      0.73      0.67       353
+       Fresh       0.56      0.50      0.52       264
+   Not Fresh       0.61      0.51      0.55       262
+
+    accuracy                           0.59       879
+   macro avg       0.59      0.58      0.58       879
+weighted avg       0.59      0.59      0.59       879
