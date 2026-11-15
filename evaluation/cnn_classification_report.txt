@@ -1,9 +1,9 @@
               precision    recall  f1-score   support
 
-       Fresh       0.54      0.75      0.63       264
-Highly Fresh       0.77      0.80      0.79       353
-   Not Fresh       0.73      0.39      0.51       262
+       Fresh       0.54      0.70      0.61       264
+Highly Fresh       0.79      0.78      0.79       353
+   Not Fresh       0.67      0.48      0.56       262
 
     accuracy                           0.67       879
-   macro avg       0.68      0.65      0.64       879
-weighted avg       0.69      0.67      0.66       879
+   macro avg       0.67      0.65      0.65       879
+weighted avg       0.68      0.67      0.67       879

@@ -14,12 +14,16 @@ from sklearn.metrics import (
     ConfusionMatrixDisplay
 )
 
+from sklearn.utils.class_weight import compute_class_weight
+
 
 # ==========================================
 # 1. KONFIGURASI
 # ==========================================
 
 DATASET_PATH = "dataset/preprocessed"
+
+# Menggunakan nama berbeda agar model lama aman
 MODEL_PATH = "models/cnn_fish_freshness.keras"
 
 IMAGE_SIZE = (128, 128)
@@ -82,6 +86,42 @@ assert train_dataset.class_names == CLASS_NAMES, (
 
 AUTOTUNE = tf.data.AUTOTUNE
 
+
+# ==========================================
+# 3. MENGHITUNG CLASS WEIGHT
+# ==========================================
+
+print("\n===== MENGHITUNG CLASS WEIGHT =====")
+
+train_labels = np.concatenate([
+    labels.numpy()
+    for images, labels in train_dataset
+])
+
+class_weights = compute_class_weight(
+    class_weight="balanced",
+    classes=np.unique(train_labels),
+    y=train_labels
+)
+
+class_weight_dict = {
+    int(class_index): float(weight)
+    for class_index, weight in zip(
+        np.unique(train_labels),
+        class_weights
+    )
+}
+
+print("\nClass Weight:")
+
+for class_index, weight in class_weight_dict.items():
+    print(f"{CLASS_NAMES[class_index]}: {weight:.4f}")
+
+
+# ==========================================
+# 4. OPTIMASI DATASET
+# ==========================================
+
 train_dataset = train_dataset.prefetch(
     buffer_size=AUTOTUNE
 )
@@ -96,7 +136,7 @@ test_dataset = test_dataset.prefetch(
 
 
 # ==========================================
-# 3. DATA AUGMENTATION
+# 5. DATA AUGMENTATION
 # ==========================================
 
 print("\n===== DATA AUGMENTATION =====")
@@ -109,7 +149,7 @@ data_augmentation = models.Sequential([
 
 
 # ==========================================
-# 4. MEMBANGUN ARSITEKTUR CNN
+# 6. MEMBANGUN ARSITEKTUR CNN
 # ==========================================
 
 print("\n===== MEMBANGUN MODEL CNN =====")
@@ -170,7 +210,7 @@ model.summary()
 
 
 # ==========================================
-# 5. COMPILE MODEL
+# 7. COMPILE MODEL
 # ==========================================
 
 print("\n===== COMPILE MODEL =====")
@@ -185,7 +225,7 @@ model.compile(
 
 
 # ==========================================
-# 6. CALLBACKS
+# 8. CALLBACKS
 # ==========================================
 
 print("\n===== MENYIAPKAN CALLBACKS =====")
@@ -206,10 +246,10 @@ model_checkpoint = ModelCheckpoint(
 
 
 # ==========================================
-# 7. TRAINING MODEL
+# 9. TRAINING MODEL
 # ==========================================
 
-print("\n===== MULAI TRAINING CNN =====")
+print("\n===== MULAI TRAINING CNN + CLASS WEIGHT =====")
 
 start_train = time.perf_counter()
 
@@ -221,6 +261,7 @@ history = model.fit(
         early_stopping,
         model_checkpoint
     ],
+    class_weight=class_weight_dict,
     shuffle=False
 )
 
@@ -232,7 +273,7 @@ print(f"Jumlah Epoch: {len(history.history['loss'])}")
 
 
 # ==========================================
-# 8. LOAD MODEL TERBAIK
+# 10. LOAD MODEL TERBAIK
 # ==========================================
 
 print("\n===== MEMUAT MODEL TERBAIK =====")
@@ -244,7 +285,7 @@ print("Lokasi model:", MODEL_PATH)
 
 
 # ==========================================
-# 9. EVALUASI MODEL
+# 11. EVALUASI MODEL
 # ==========================================
 
 print("\n===== EVALUASI MODEL =====")
@@ -258,7 +299,7 @@ print(f"Test Accuracy : {test_accuracy * 100:.2f}%")
 
 
 # ==========================================
-# 10. CLASSIFICATION REPORT
+# 12. CLASSIFICATION REPORT
 # ==========================================
 
 print("\n===== CLASSIFICATION REPORT =====")
@@ -286,7 +327,7 @@ report = classification_report(
 print(report)
 
 with open(
-    "evaluation/cnn_classification_report.txt",
+    "evaluation/cnn_weighted_classification_report.txt",
     "w",
     encoding="utf-8"
 ) as file:
@@ -294,7 +335,7 @@ with open(
 
 
 # ==========================================
-# 11. CONFUSION MATRIX
+# 13. CONFUSION MATRIX
 # ==========================================
 
 print("\n===== CONFUSION MATRIX =====")
@@ -315,11 +356,11 @@ display.plot(
     values_format="d"
 )
 
-plt.title("CNN Confusion Matrix")
+plt.title("CNN + Class Weight Confusion Matrix")
 plt.tight_layout()
 
 plt.savefig(
-    "evaluation/cnn_confusion_matrix.png",
+    "evaluation/cnn_weighted_confusion_matrix.png",
     dpi=300
 )
 
@@ -327,7 +368,7 @@ plt.close()
 
 
 # ==========================================
-# 12. GRAFIK ACCURACY
+# 14. GRAFIK ACCURACY
 # ==========================================
 
 print("\n===== MEMBUAT GRAFIK ACCURACY =====")
@@ -344,7 +385,7 @@ plt.plot(
     label="Validation Accuracy"
 )
 
-plt.title("CNN Model Accuracy")
+plt.title("CNN + Class Weight Model Accuracy")
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
 
@@ -354,7 +395,7 @@ plt.grid(True)
 plt.tight_layout()
 
 plt.savefig(
-    "evaluation/cnn_accuracy.png",
+    "evaluation/cnn_weighted_accuracy.png",
     dpi=300
 )
 
@@ -362,7 +403,7 @@ plt.close()
 
 
 # ==========================================
-# 13. GRAFIK LOSS
+# 15. GRAFIK LOSS
 # ==========================================
 
 print("\n===== MEMBUAT GRAFIK LOSS =====")
@@ -379,7 +420,7 @@ plt.plot(
     label="Validation Loss"
 )
 
-plt.title("CNN Model Loss")
+plt.title("CNN + Class Weight Model Loss")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
 
@@ -389,7 +430,7 @@ plt.grid(True)
 plt.tight_layout()
 
 plt.savefig(
-    "evaluation/cnn_loss.png",
+    "evaluation/cnn_weighted_loss.png",
     dpi=300
 )
 
@@ -397,12 +438,12 @@ plt.close()
 
 
 # ==========================================
-# 14. SELESAI
+# 16. SELESAI
 # ==========================================
 
-print("\n===== PROSES CNN SELESAI =====")
+print("\n===== PROSES CNN + CLASS WEIGHT SELESAI =====")
 
-print("Model      : models/cnn_fish_freshness.keras")
+print("Model      : models/cnn_fish_freshness_weighted.keras")
 print("Evaluation : evaluation/")
 print(f"Accuracy   : {test_accuracy * 100:.2f}%")
 print(f"Loss       : {test_loss:.4f}")
