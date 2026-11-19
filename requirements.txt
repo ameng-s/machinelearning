@@ -1,6 +1,5 @@
-streamlit
+
+Flask
 tensorflow-cpu
 numpy
-pillow
-flask
-gunicorn
+Pillow

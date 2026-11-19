@@ -8,16 +8,19 @@ from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
-# Konfigurasi model CNN + Class Weight
-MODEL_PATH = "models/cnn_fish_freshness.keras"
+# Konfigurasi model CNN
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+MODEL_PATH = os.path.join(
+    BASE_DIR, "models", "cnn_fish_freshness.keras"
+)
+
 IMAGE_SIZE = (128, 128)
 
-# Urutan kelas harus sama dengan saat training CNN
 CLASS_NAMES = ["Fresh", "Highly Fresh", "Not Fresh"]
 
-# Memuat model CNN + Class Weight
+# Memuat model CNN
 model = tf.keras.models.load_model(MODEL_PATH)
-
 
 # Halaman utama website
 @app.route("/", methods=["GET"])
